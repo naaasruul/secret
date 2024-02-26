@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myLecturer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar bg-body-tertiary ">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Lecturer Page</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'lectReport' lect.mentor_id %}">Report</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'lectApp' lect.mentor_id %}">Appointment</a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Others
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'lect_displayAllStudent' lect.mentor_id %}">All Students</a></li>
+                    <li><a class="dropdown-item" href="{% url 'lect_displayMentee' lect.mentor_id %}">Mentee</a></li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="{% url 'login'%}">Logout</a></li>
+                  </ul>
+                </li>
+              </ul>
+              <h5>Search report by date</h5>
+              <form class="d-flex mt-3" method="get" action="{% url 'searchreport' lect.mentor_id%}" role="search">
+                {%csrf_token%}
+                <input class="form-control me-2" required type="date" placeholder="Search" name="searchItem" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    <main class="m-5">
+        <h1>Hi {{lect.mentor_name}},</h1>
+        <!-- <br>
+        <br>
+        guna ni untuk report <br>
+      {{allReport}}
+      <br>
+      <br>
+      guna ni untuk appoointment <br>
+      {{allApp}} -->
+        <h3>My Report</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Report ID</th>
+              <th scope="col">Student Name</th>
+              <th scope="col">Mentor ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Category</th>
+              <th scope="col">Description</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for report in allReport%}
+            <tr>
+              <th scope="row">{{report.id}}</th>
+              {% for student in allStudent%}
+              {%if report.student_id ==  student.student_id %}
+              <td>{{student.student_name}}</td>
+              {%endif%}
+              {%endfor%}
+              <!-- kalau mentor ni nak display nama jugak, guna method macam student. passing all student dekat views.py and guna macam kat student -->
+              <td>{{report.mentor_id}}</td>
+              <td>{{report.report_date}}</td>
+              <td>{{report.report_category}}</td>
+              <td>{{report.report_text}}</td>
+              <td>
+                <a href="{% url 'deleteReport' lect.mentor_id report.id%}" class="btn btn-danger">Delete</a>
+                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#id{{report.id}}" href=" url 'updateReport' lect.mentor_id report.id" class="btn">Update</a>
+
+                                    <!-- Modal -->
+                  <div class="modal fade" id="id{{report.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">{{report.id}}</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="{% url 'updateReport' lect.mentor_id report.id%}" method="post">
+                            {%csrf_token%}
+                            <div class="mb-3 col-md-12">
+                              <label for="" class="form-label">Category</label>
+                          <select name="sel_category" class="form-select form-select-sm" aria-label="Select Category">
+                            <option selected>Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                          </select>
+                            </div>
+                          
+                          <label for="" class="form-label">Description</label>
+                          <input type="text"  class="form-control" name="report_desc" id="">
+
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                          </form>
+
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+
+
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+
+
+
+        <!-- Adjust Appointment ni!! -->
+        <h3>My Appointment</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Report ID</th>
+              <th scope="col">Student Name</th>
+              <th scope="col">Mentor ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Category</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for report in allApp%}
+            <tr>
+              <th scope="row">{{report.id}}</th>
+              {% for student in allStudent%}
+              {%if report.student_id ==  student.student_id %}
+              <td>{{student.student_name}}</td>
+              {%endif%}
+              {%endfor%}
+              <!-- kalau mentor ni nak display nama jugak, guna method macam student. passing all student dekat views.py and guna macam kat student -->
+              <td>{{report.mentor_id}}</td>
+              <td>{{report.report_date}}</td>
+              <td>{{report.report_category}}</td>
+              <td>{{report.report_text}}</td>
+              <td>
+                <a href="{% url 'deleteApp' lect.mentor_id report.id%}" class="btn">X</a>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+        
+    </main>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</html>
